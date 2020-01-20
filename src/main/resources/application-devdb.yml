@@ -1,0 +1,8 @@
+paladin:
+  dynamic-datasource-enabled: 'true'
+  dynamic:
+    mybatis:
+      mapper-location: classpath:dynamic/mapper/**/*.xml
+      type-aliases-package: com.paladin.qos.dynamic.model
+      
+  

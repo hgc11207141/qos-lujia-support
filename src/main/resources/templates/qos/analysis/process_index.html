@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="/qos/header"/>
+
+<body>
+<tt:constant enumcode="data-event-type,data-unit-type,analysis-data-type"/>
+<section class="content-header">
+    <h1>数据处理管理</h1>
+</section>
+<section class="content">
+    <div id="processForm">
+    </div>
+    <div class="box box-widget">
+        <div class="box-header no-border">
+            <h3 class="box-title">数据处理进度</h3>
+            <div class="box-tools pull-right">
+                <button type="button" onclick="getProgess()" class="btn btn-box-tool"><i class="fa fa-refresh"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="progress-group">
+                <span id="progressText" class="progress-text"></span>
+                <span id="progressNumber" class="progress-number"></span>
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar progress-bar-aqua" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="processValidate">
+    </div>
+    <div id="processValidateResult">
+    </div>
+
+    <div id="processImport">
+    </div>
+
+    <div id="processRead">
+    </div>
+    <div class="box box-widget">
+        <div class="box-header no-border">
+            <h3 class="box-title">数据读取状态</h3>
+            <div class="box-tools pull-right">
+                <button type="button" onclick="getReadStatus()" class="btn btn-box-tool"><i class="fa fa-refresh"></i>
+                </button>
+            </div>
+        </div>
+        <div class="box-body" id="readStatusDiv">
+
+        </div>
+    </div>
+</section>
+<div th:include="/qos/footer"/>
+<script type="text/javascript">
+    var options = {
+        id: "model",
+        cancelBtn: false,
+        submitBtnName: '开始处理',
+        name: "数据处理",
+        url: "/qos/analysis/data/process",
+        columns: [
+            {title: "事件", name: "eventIds", inputType: "SELECT", multiple: true, enum: "data-event-type"},
+            {title: "医院", name: "unitIds", inputType: "SELECT", multiple: true, enum: "data-unit-type"},
+            {title: "事件输入", name: "eventIdInput", inputType: "TEXTAREA"},
+            {title: "医院输入", name: "unitIdInput", inputType: "TEXTAREA"},
+            {title: "开始时间", name: "startTime", inputType: "DATE", required: "required"},
+            {title: "结束时间", name: "endTime", inputType: "DATE"}
+        ]
+    }
+
+    var options_validate = {
+        id: "validate",
+        cancelBtn: false,
+        submitBtnName: '数据校验',
+        name: "数据校验",
+        url: "/qos/analysis/data/validate",
+        columns: [
+            {title: "开始时间", name: "startTime", inputType: "DATE", required: "required"},
+            {title: "结束时间", name: "endTime", inputType: "DATE"}
+        ]
+    }
+
+    var options_import = {
+        id: "importModel",
+        cancelBtn: false,
+        submitBtnName: '数据导入',
+        name: "数据导入",
+        url: "/qos/manual/data/import",
+        columns: [
+            {title: "单位ID", name: "unitId", inputType: "TEXT", required: "required"},
+            {title: "事件ID", name: "eventId", inputType: "TEXT", required: "required"},
+            {title: "开始时间", name: "startTime", inputType: "DATE", required: "required"},
+            {title: "结束时间", name: "endTime", inputType: "DATE", required: "required"},
+            {title: "类型", name: "type", inputType: "SELECT", enum: "analysis-data-type", required: "required"},
+            {
+                title: "文件",
+                name: "import",
+                inputType: "ATTACHMENT",
+                fileName: "importFile",
+                maxFileCount: 1,
+                allowedFileExtensions: ["xlsx", "xls"]
+            }
+        ]
+    }
+
+    var options_read = {
+        id: "readModel",
+        cancelBtn: false,
+        submitBtnName: '数据读取',
+        name: "数据读取",
+        url: "/qos/manual/data/read",
+        columns: [
+            {title: "事件ID", name: "eventId", inputType: "TEXT", required: "required"},
+            {title: "开始时间", name: "startTime", inputType: "DATE", required: "required"},
+            {title: "结束时间", name: "endTime", inputType: "DATE", required: "required"},
+            {title: "类型", name: "type", inputType: "SELECT", enum: "analysis-data-type", required: "required"},
+            {title: "SQL", name: "sql", inputType: "TEXTAREA", required: "required"}
+        ]
+    }
+
+    $(function () {
+        var html = generateEditHtml(options);
+        $("#processForm").html(html);
+        $.initComponment($("#processForm"));
+
+        var model = new tonto.Model("model", options.columns, {
+            pattern: "edit",
+            beforeSubmit: function (formData) {
+                var es = $('[name="eventIdInput"]').val();
+                var us = $('[name="unitIdInput"]').val();
+
+                if (es) {
+                    es = es.split(",");
+                    es.forEach(function (a) {
+                        formData.push({
+                            name: "eventIds",
+                            value: a,
+                            type: "text",
+                            required: false
+                        });
+                    });
+                }
+
+                if (us) {
+                    us = us.split(",");
+                    us.forEach(function (a) {
+                        formData.push({
+                            name: "unitIds",
+                            value: a,
+                            type: "text",
+                            required: false
+                        });
+                    });
+                }
+
+            },
+            successCallback: function () {
+                $.successAlert("数据开始处理", function () {
+                    getProgess();
+                });
+            }
+        });
+        model.setData(null);
+
+
+        html = generateEditHtml(options_validate);
+        $("#processValidate").html(html);
+        $.initComponment($("#processValidate"));
+
+        var validate = new tonto.Model("validate", options_validate.columns, {
+            pattern: "edit",
+            successCallback: function (result) {
+                $.successAlert("数据校验结束", function () {
+                    viewValidate(result);
+                });
+            }
+        });
+        validate.setData(null);
+
+        html = generateEditHtml(options_import);
+        $("#processImport").html(html);
+        $.initComponment($("#processImport"));
+
+        var importModel = new tonto.Model("importModel", options_import.columns, {
+            pattern: "edit",
+            successCallback: function (result) {
+                $.successAlert("数据导入结束", function () {
+                    console.log(result);
+                });
+            }
+        });
+        importModel.setData(null);
+
+
+        html = generateEditHtml(options_read);
+        $("#processRead").html(html);
+        $.initComponment($("#processRead"));
+
+        var readModel = new tonto.Model("readModel", options_import.columns, {
+            pattern: "edit",
+            successCallback: function (result) {
+                $.successAlert("数据已开始读取", function () {
+
+                });
+            }
+        });
+        readModel.setData(null);
+
+    });
+
+    function getProgess() {
+        $.getAjax("/qos/analysis/data/process/status", function (result) {
+            var status = result.status,
+                progressBar = $("#progressBar"),
+                progressNumber = $("#progressNumber"),
+                progressText = $("#progressText"),
+                c = result.current,
+                t = result.total;
+
+            if (status == -1) {
+                progressText.html("数据<b>空闲</b>");
+                progressBar.css("width", "0%");
+                progressNumber.html("");
+            } else if (status == 1) {
+                if (c && t) {
+                    var r = c / t;
+                    r = r.toFixed(2);
+                    r *= 100;
+                    progressText.html("数据<b>处理中</b>");
+                    progressBar.css("width", r + "%");
+                    progressNumber.html("<b>" + c + "</b>/" + t);
+                } else {
+                    progressText.html("数据<b>处理中</b>");
+                    progressBar.css("width", "0");
+                    progressNumber.html("<b>" + c + "</b>/" + t);
+                }
+
+                setTimeout(getProgess, 500);
+            } else if (status == 2) {
+                progressText.html("数据<b>处理完成</b>");
+                progressBar.css("width", "100%");
+                progressNumber.html("<b>" + c + "</b>/" + t);
+            }
+        })
+    }
+
+    var validateResult;
+
+    function viewValidate(result) {
+        validateResult = result;
+        var ulHtml = '';
+        var contentHtml = '';
+
+        for (var i = 0; i < result.length; i++) {
+            var re = result[i];
+            var rus = re.unitResults;
+            var id = 'event_' + i;
+            var lostNum = 0;
+
+            contentHtml += '<div class="tab-pane ' + (i == 0 ? 'class="active"' : '') + '" id="' + id + '">';
+            contentHtml += '<table class="table table-hover table-striped"><tbody>';
+            for (var j = 0; j < rus.length; j++) {
+                var ru = rus[j];
+                contentHtml += '<tr>';
+                contentHtml += '<td>' + ru.unitId + '</td>';
+                contentHtml += '<td>' + ru.unitName + '</td>';
+                contentHtml += '<td>' + (ru.firstDay || '-') + '</td>';
+                contentHtml += '<td>' + (ru.lastDay || '-') + '</td>';
+
+                if (ru.lostDays && ru.lostDays.length > 0) {
+                    contentHtml += '<td><a href="javascript:showLostDay(' + i + ',' + j + ')">缺失' + ru.lostDays.length + '天</a></td>';
+                    lostNum += ru.lostDays.length;
+                } else {
+                    contentHtml += '<td>数据完整</td>';
+                }
+                contentHtml += '</tr>';
+            }
+
+            if (lostNum > 0) {
+                ulHtml += '<li ' + (i == 0 ? 'class="active"' : '') + '><a href="#' + id + '" data-toggle="tab" aria-expanded="true" style="color:red">' + re.eventName + '(' + lostNum / rus.length + ')</a></li>';
+            } else {
+                ulHtml += '<li ' + (i == 0 ? 'class="active"' : '') + '><a href="#' + id + '" data-toggle="tab" aria-expanded="true">' + re.eventName + '</a></li>';
+            }
+
+            contentHtml += '</tbody></table>';
+            contentHtml += '</div>';
+        }
+
+
+        var html = '<div class="nav-tabs-custom">' +
+            '    <ul class="nav nav-tabs">' + ulHtml +
+            '    </ul>' +
+            '    <div class="tab-content">' + contentHtml +
+            '    </div>' +
+            '</div>';
+
+        $("#processValidateResult").html(html);
+    }
+
+    function showLostDay(i, j) {
+        var content = '';
+        var lostDays = validateResult[i].unitResults[j].lostDays;
+
+        for (var k = 0; k < lostDays.length; k++) {
+            content += lostDays[k] + ',';
+        }
+
+        layer.alert(content);
+    }
+
+    function repair() {
+        $.successAlert("修复功能还未开发");
+    }
+
+    function getReadStatus() {
+        $.getAjax("/qos/manual/data/read/status", function (datas) {
+
+            var html = "";
+            if (datas && datas.length > 0) {
+                html = '<table class="table table-hover">' +
+                    '    <thead>' +
+                    '        <tr>' +
+                    '            <th style="text-align: center; vertical-align: middle; ">' +
+                    '                <div class="th-inner ">事件</div>' +
+                    '                <div class="fht-cell"></div>' +
+                    '            </th>' +
+                    '            <th style="text-align: center; vertical-align: middle; ">' +
+                    '                <div class="th-inner ">是否完成</div>' +
+                    '                <div class="fht-cell"></div>' +
+                    '            </th>' +
+                    '            <th style="text-align: center; vertical-align: middle; ">' +
+                    '                <div class="th-inner ">开始时间</div>' +
+                    '                <div class="fht-cell"></div>' +
+                    '            </th>' +
+                    '            <th style="text-align: center; vertical-align: middle; ">' +
+                    '                <div class="th-inner ">结束时间</div>' +
+                    '                <div class="fht-cell"></div>' +
+                    '            </th>' +
+                    '            <th style="text-align: center; vertical-align: middle; ">' +
+                    '                <div class="th-inner ">SQL语句</div>' +
+                    '                <div class="fht-cell"></div>' +
+                    '            </th>' +
+                    '        </tr>' +
+                    '    </thead>' +
+                    '    <tbody>';
+
+                datas.forEach(function (data) {
+                    html += '<tr data-index="1">' +
+                        '            <td style="text-align: center; vertical-align: middle; ">' + data.readEvent.eventId + '</td>' +
+                        '            <td style="text-align: center; vertical-align: middle; ">' + (data.finished ? '完成' : '运行中') + '</td>' +
+                        '            <td style="text-align: center; vertical-align: middle; ">' + formatDate(data.startTime) + '</td>' +
+                        '            <td style="text-align: center; vertical-align: middle; ">' + formatDate(data.endTime) + '</td>' +
+                        '            <td style="text-align: center; vertical-align: middle; ">' + data.sql + '</td>' +
+                        '        </tr>';
+                });
+
+                html += '</tbody>' +
+                    '</table>';
+            }
+
+            $("#readStatusDiv").html(html);
+        });
+    }
+
+    function formatDate(value) {
+        if (value) {
+            if (!isNaN(value)) {
+                return $.formatDate(new Date(value), "yyyy-MM-dd");
+            }
+            return value;
+        }
+        return "";
+    }
+
+</script>
+</body>
+
+</html>
