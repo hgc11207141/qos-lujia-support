@@ -13,6 +13,12 @@ public interface PublicHealthManagementMapper {
     //审核公开的健康档案数
     Long getPublicArchives(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
+    //档案更新率-1-看病档案更新数
+    public List<String> getTreatRenewArchives(@Param("startDate") Date startTime, @Param("endDate") Date endTime,@Param("unitId") String unitId);
+
+    //档案更新率-2-体检随访档案更新数
+    public List<String> getCheckupRenewArchives(@Param("startDate") Date startTime, @Param("endDate") Date endTime,@Param("unitId") String unitId);
+
     //老年人体检数
     Long getPhysicalNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 

@@ -75,8 +75,10 @@ public class PermissionContainer implements VersionContainer {
 			String permissionId = orgRolePermission.getPermissionId();
 
 			OrgPermission permission = permissionMap.get(permissionId);
-			Role role = roleMap.get(roleId);
-			role.addPermission(permission, permissionMap);
+			if(permission != null){
+				Role role = roleMap.get(roleId);
+				role.addPermission(permission, permissionMap);
+			}
 		}
 
 		for (Role role : roleMap.values()) {

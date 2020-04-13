@@ -5,7 +5,7 @@
     <select id="getActiveArchives" resultType="java.lang.Long">
         select count(1)
         from phis_chss.v_fha_person_main
-        where stateid=1
+        where stateid=1 and status=1
         AND managedcentercode = #{unitId}
         AND createdtime
         <![CDATA[>= ]]> #{startDate}+0
@@ -23,6 +23,46 @@
         AND createdtime
         <![CDATA[< ]]> #{endDate}+0
     </select>
+
+    <!--档案更新率-1-看病档案更新数-->
+    <select id="getTreatRenewArchives" resultType="java.lang.String">
+       select archivesid from phis_webhis.v_opr_register
+       where archivesid is not null
+        <if test="startDate !=null">
+            and seedate <![CDATA[>= ]]> #{startDate}+0
+        </if>
+        <if test="endDate !=null">
+            and seedate <![CDATA[< ]]> #{endDate}+0
+        </if>
+       and orgcode=#{unitId}
+       group by archivesid
+    </select>
+
+    <!--档案更新率-2-体检随访档案更新数-->
+    <select id="getCheckupRenewArchives" resultType="java.lang.String">
+       select  t.code from
+       ((select code from phis_chss.v_fhc_check_main where  1=1
+        <if test="startDate !=null">
+            and examdate<![CDATA[>= ]]> #{startDate}+0
+        </if>
+        <if test="endDate !=null">
+            and examdate <![CDATA[< ]]> #{endDate}+0
+        </if>
+        group by code)
+         union
+        (select code from phis_chss.v_fha_person_sign_visit where 1=1
+        <if test="startDate !=null">
+            and visitdate<![CDATA[>= ]]> #{startDate}+0
+        </if>
+        <if test="endDate !=null">
+            and visitdate <![CDATA[< ]]> #{endDate}+0
+        </if>
+        group by code )) t
+        join phis_chss.v_fha_person_main p
+        on t.code=p.code
+        where managedcentercode=#{unitId} and p.stateid=1 and p.status=1
+    </select>
+
     <!--老年人体检数-->
     <select id="getPhysicalNumber" resultType="java.lang.Long">
         select count(1)
