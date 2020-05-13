@@ -31,9 +31,9 @@ public class OPDDrugTotal extends YiyuanDataProcessor {
 	@Override
 	public long getTotalNum(Date startTime, Date endTime, String unitId) {
 		sqlSessionContainer.setCurrentDataSource(getDataSourceByUnit(unitId));
-		int xy = sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDDrugxyTotal(startTime, endTime, unitId);
-		int zy = sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDDrugzyTotal(startTime, endTime, unitId);
-		int total = xy + zy;
+        long xy = sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDDrugxyTotal(startTime, endTime, unitId);
+        long zy = sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDDrugzyTotal(startTime, endTime, unitId);
+        long total = xy + zy;
 		return total;
 	}
 

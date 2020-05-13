@@ -31,7 +31,8 @@ public class HospitalizationBedTotal extends YiyuanDataProcessor {
 	@Override
 	public long getTotalNum(Date startTime, Date endTime, String unitId) {
 		sqlSessionContainer.setCurrentDataSource(getDataSourceByUnit(unitId));
-		return sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).publicBedDayTotal(startTime, endTime);
+		double num = sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).publicBedDayTotal(startTime, endTime)*100;
+		return (long)num;
 	}
 
 	@Override

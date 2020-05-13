@@ -31,7 +31,8 @@ public class OPDMoneyTotal extends YiyuanDataProcessor {
 	@Override
 	public long getTotalNum(Date startTime, Date endTime, String unitId) {
 		sqlSessionContainer.setCurrentDataSource(getDataSourceByUnit(unitId));
-		return sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDMoneyTotal(startTime, endTime, unitId);
+		double num =sqlSessionContainer.getSqlSessionTemplate().getMapper(OpdStatisticsMapper.class).OPDMoneyTotal(startTime, endTime, unitId);
+		return (long)num;
 	}
 
 	@Override
