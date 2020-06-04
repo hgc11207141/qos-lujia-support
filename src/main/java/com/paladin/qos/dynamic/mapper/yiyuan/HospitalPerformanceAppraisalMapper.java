@@ -35,4 +35,6 @@ public interface HospitalPerformanceAppraisalMapper {
 
 	long getOutHospitalBedDayTotalNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("code") String code);
 
+    long getReservationPeoplesTotalNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("code") String code);
+
 }

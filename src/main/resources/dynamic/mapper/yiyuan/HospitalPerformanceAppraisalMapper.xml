@@ -6,7 +6,7 @@
    <!-- 门诊出院-门诊人次-->
     <select id="getOutpatientVisitsTotalNum" resultType="long">
         select count(1) from RegisterRecord
-        where OP_EM_MARK = '1'  AND  back_mark  = 0  AND  visit_date >= #{startTime}   AND   visit_date  <![CDATA[<]]> #{endTime}
+        where   visit_date >= #{startTime}   AND   visit_date  <![CDATA[<]]> #{endTime}
     </select>
 
     <!-- 转诊人次-->
@@ -184,9 +184,24 @@
 
     <!-- 出院者占用总床日-->
     <select id="getOutHospitalBedDayTotalNum" resultType="long">
-        SELECT  coalesce(sum(L_H_BR),0) from IN_WORKLOAD
-        where RCD_DT  >= ADD_MONTHS(#{startTime} , 1)
-        and RCD_DT <![CDATA[<]]> ADD_MONTHS(#{endTime}, 1)
+        SELECT COALESCE(sum(H_O_D), 0) AS total
+        FROM FirstPageMedicalRecord
+        WHERE out_hp_dt >= #{startTime}
+          AND out_hp_dt <![CDATA[<]]> #{endTime}
+        UNION ALL
+        SELECT COALESCE(sum(H_O_D), 0) AS total
+        FROM ED_CMEDICAL_HOME_PAGE_RECORD
+        WHERE out_hp_dt >= #{startTime}
+          AND out_hp_dt <![CDATA[<]]> #{endTime}
     </select>
+
+        <!-- 预约人次-->
+    <select id="getReservationPeoplesTotalNum" resultType="long">
+        select count(1) as total
+        from RegisterRecord
+        where APP_MARK = '1'
+          and REC_DT >= #{startTime}
+          and REC_DT <![CDATA[<]]> #{endTime}
+</select>
 
 </mapper>
