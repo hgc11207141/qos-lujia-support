@@ -136,5 +136,22 @@ public interface DataFamilyDoctorMapper {
 	
 	/** 离休干部签约率 */
 	public long retirementCadreRate(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
-	
+
+	/**复筛脑卒中低中高危数量*/
+	public long SecCheckStrockNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
+
+	/**复筛心脏病低中高危数量*/
+	public long SecCheckHeartNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
+
+    //心超数量
+	public long heartBNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
+
+	//颈超数量
+	public long strockBNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
+
+	//心脏确认数量
+	public long heartConfirmBNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
+
+	//脑卒中确认数量
+	public long strockConfirmBNum(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("unitId") String unitId);
 }

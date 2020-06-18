@@ -344,4 +344,7 @@
         AND  createdtime <![CDATA[< ]]> #{endDate}+0
         AND  managedcentercode = #{unitId}
     </select>
+
+
+    <!--心脑血管疾病筛查需要：初筛总人数、量表评估数、复筛低中高危数量（脑卒中和心脏病分开）、B超数量（颈超和心超分开）、确诊数量（脑卒中和心脏病分开）-->
 </mapper>

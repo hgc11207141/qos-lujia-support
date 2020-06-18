@@ -464,5 +464,65 @@
         and CREATEDTIME &lt; #{endTime}+0
         and CREATEDUNITCODE = #{unitId}
     </select>
-    
+
+    <!--复筛低中高危数量(脑卒中)-->
+    <select id="SecCheckStrockNum" resultType="long">
+      select count(t.chid)
+      from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )   and t.stateid='1'
+      and     (t.riskdesc like '%脑卒中中危%' or t.riskdesc like '%脑卒中低危%' or t.riskdesc like '%脑卒中高危%')
+      and t.managedcentercode is not null
+       and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
+    <!--复筛低中高危数量(心脏病)-->
+    <select id="SecCheckHeartNum" resultType="long">
+      select count(t.chid)
+      from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )   and t.stateid='1'
+      and     t.riskdesc like '%心脏病高危%'
+      and t.managedcentercode is not null
+       and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
+    <!--心超数量-->
+    <select id="heartBNum" resultType="long">
+       select  count(1)
+
+       from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )  and  t.stateid='1'  and t.heartultrasonickindcode ='2'
+
+       and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
+    <!--颈超数量-->
+    <select id="strockBNum" resultType="long">
+       select  count(1)
+       from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )  and  t.stateid='1'  and t.strokeultrasonickindcode='1'
+       and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
+    <!--心脏确认数量-->
+    <select id="heartConfirmBNum" resultType="long">
+       select  count(t.chid)
+        from  phis_chss.fha_pre_scale_assess  t  where  ( t.status='1'  or    t.status='3'  )  and  t.stateid='1' and  t.heartstate='1'
+        and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
+    <!--脑卒中确认数量-->
+    <select id="strockConfirmBNum" resultType="long">
+       select  count(t.chid)
+        from  phis_chss.fha_pre_scale_assess  t  where  ( t.status='1'  or    t.status='3'  )  and  t.stateid='1' and  t.strokestate='1'
+        and CREATEDTIME &gt;= #{startTime}+0
+        and CREATEDTIME &lt; #{endTime}+0
+        and managedcentercode = #{unitId}
+    </select>
+
 </mapper>
