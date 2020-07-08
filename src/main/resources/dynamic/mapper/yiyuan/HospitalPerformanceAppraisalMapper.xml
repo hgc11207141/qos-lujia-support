@@ -204,4 +204,32 @@
           and REC_DT <![CDATA[<]]> #{endTime}
 </select>
 
+
+    <!-- 微创手术-->
+    <select id="getMinioperationTotalNum" resultType="long">
+         SELECT sum(total)
+        FROM
+        (SELECT count(1) AS total
+        FROM outhospitalrecord a
+        LEFT JOIN firstpagemedicalrecord d
+        ON d.HP_S_NO = a.HP_S_NO
+        LEFT JOIN MR_OperationRecord b
+        ON d.HP_S_NO = b.HP_S_NO
+        WHERE a.OHREC_DREC in ('1','3')  and  d.IF_OPREA = '1'
+        AND b.OPER_CODE in (SELECT TT.OPERATION_CODE  from system.minioperation tt )
+        AND a.OUT_HP_DT >= #{startTime}
+        AND a.OUT_HP_DT <![CDATA[<]]> #{endTime}
+        UNION ALL
+        SELECT count(1) AS total
+        FROM outhospitalrecord a
+        LEFT JOIN ed_cmedical_home_page_record e
+        ON a.HP_S_NO = e.HP_S_NO
+        LEFT JOIN ED_CMED_HOME_PAGE_OPE_RECORD c
+        ON e.HP_S_NO = c.HP_S_NO
+        WHERE a.OHREC_DREC in ('1','3')  and e.IF_OPREA = '1'
+        AND c.OPER_CODE in (SELECT TT.OPERATION_CODE  from system.minioperation tt )
+        AND a.OUT_HP_DT >= #{startTime}
+        AND a.OUT_HP_DT <![CDATA[<]]> #{endTime})
+    </select>
+
 </mapper>
