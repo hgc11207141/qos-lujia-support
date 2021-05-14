@@ -1,15 +1,5 @@
 package com.paladin.qos.analysis;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.paladin.common.core.container.ConstantsContainer;
 import com.paladin.common.core.container.ConstantsContainer.KeyValue;
 import com.paladin.framework.core.VersionContainer;
@@ -18,6 +8,15 @@ import com.paladin.qos.model.data.DataEvent;
 import com.paladin.qos.model.data.DataUnit;
 import com.paladin.qos.service.data.DataEventService;
 import com.paladin.qos.service.data.DataUnitService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DataConstantContainer implements VersionContainer {
@@ -44,6 +43,7 @@ public class DataConstantContainer implements VersionContainer {
 	private final static String TYPE_UNIT = "data-unit-type"; // 所有单位
 	private final static String TYPE_HOSPITAL = "data-hospital-type"; // 医院
 	private final static String TYPE_COMMUNITY = "data-community-type"; // 社区
+	private final static String TYPE_STATION = "data-station-type"; // 站点
 
 	@Autowired
 	private ConstantsContainer constantsContainer;
@@ -59,6 +59,7 @@ public class DataConstantContainer implements VersionContainer {
 	private static List<DataUnit> units;
 	private static List<DataUnit> hospitals;
 	private static List<DataUnit> communities;
+	private static List<DataUnit> stations;
 
 	public boolean initialize() {
 		List<DataEvent> events = dataEventService.findAll();
@@ -93,10 +94,12 @@ public class DataConstantContainer implements VersionContainer {
 
 		List<DataUnit> hospitals = new ArrayList<>();
 		List<DataUnit> communities = new ArrayList<>();
+		List<DataUnit> stations = new ArrayList<>();
 
 		List<KeyValue> unitKeyValues = new ArrayList<>();
 		List<KeyValue> hospitalKeyValues = new ArrayList<>();
 		List<KeyValue> communityKeyValues = new ArrayList<>();
+		List<KeyValue> stationKeyValues = new ArrayList<>();
 
 		for (DataUnit unit : units) {
 			String id = unit.getId();
@@ -110,6 +113,9 @@ public class DataConstantContainer implements VersionContainer {
 			} else if (type == DataUnit.TYPE_COMMUNITY) {
 				communities.add(unit);
 				communityKeyValues.add(new KeyValue(id, name));
+			} else if (type == DataUnit.TYPE_STATION) {
+				stations.add(unit);
+				stationKeyValues.add(new KeyValue(id, name));
 			}
 		}
 
@@ -117,6 +123,7 @@ public class DataConstantContainer implements VersionContainer {
 		constantsContainer.putConstant(TYPE_UNIT, unitKeyValues);
 		constantsContainer.putConstant(TYPE_HOSPITAL, hospitalKeyValues);
 		constantsContainer.putConstant(TYPE_COMMUNITY, communityKeyValues);
+		constantsContainer.putConstant(TYPE_STATION, stationKeyValues);
 
 		DataConstantContainer.events = Collections.unmodifiableList(events);
 		DataConstantContainer.units = Collections.unmodifiableList(units);
@@ -126,6 +133,7 @@ public class DataConstantContainer implements VersionContainer {
 
 		DataConstantContainer.hospitals = Collections.unmodifiableList(hospitals);
 		DataConstantContainer.communities = Collections.unmodifiableList(communities);
+		DataConstantContainer.stations = Collections.unmodifiableList(stations);
 
 		return true;
 	}
@@ -158,6 +166,14 @@ public class DataConstantContainer implements VersionContainer {
 
 	public static List<DataUnit> getCommunityList() {
 		return communities;
+	}
+
+	public static List<DataUnit> getStations() {
+		return stations;
+	}
+
+	public static void setStations(List<DataUnit> stations) {
+		DataConstantContainer.stations = stations;
 	}
 
 	public static DataUnit getUnit(String id) {

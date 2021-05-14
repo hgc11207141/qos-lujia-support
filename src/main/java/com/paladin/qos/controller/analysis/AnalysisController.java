@@ -1,11 +1,12 @@
 package com.paladin.qos.controller.analysis;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.paladin.framework.web.response.CommonResponse;
+import com.paladin.qos.analysis.DataConstantContainer;
+import com.paladin.qos.model.data.DataEvent;
+import com.paladin.qos.model.data.DataUnit;
+import com.paladin.qos.service.analysis.AnalysisService;
+import com.paladin.qos.service.data.DataEventService;
+import com.paladin.qos.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.paladin.framework.web.response.CommonResponse;
-import com.paladin.qos.analysis.DataConstantContainer;
-import com.paladin.qos.model.data.DataEvent;
-import com.paladin.qos.model.data.DataUnit;
-import com.paladin.qos.service.analysis.AnalysisService;
-import com.paladin.qos.service.data.DataEventService;
-import com.paladin.qos.util.TimeUtil;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/qos/analysis")
@@ -263,6 +262,8 @@ public class AnalysisController {
 			return DataUnit.TYPE_COMMUNITY;
 		if (targetType == DataEvent.TARGET_TYPE_HOSPITAL)
 			return DataUnit.TYPE_HOSPITAL;
+		if (targetType == DataEvent.TARGET_TYPE_STATION)
+			return DataUnit.TYPE_STATION;
 		return 0;
 	}
 

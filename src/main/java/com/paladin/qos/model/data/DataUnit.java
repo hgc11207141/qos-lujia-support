@@ -8,29 +8,32 @@ public class DataUnit {
 	public final static int TYPE_HOSPITAL = 1;
 	/** 社区 */
 	public final static int TYPE_COMMUNITY = 2;
-	
-	// 
+	/** 站点*/
+	public final static int TYPE_STATION = 3;
+
+
+	//
 	@Id
 	private String id;
 
 	// 医院名称
 	private String name;
-	
+
 	// 类型
 	private Integer type;
-	
+
 	// 妇幼编码
 	private String fuyouCode;
-	
+
 	// 工位编码
 	private String gongweiCode;
-	
+
 	// 备注说明
 	private String note;
-	
+
 	// 排序号
 	private Integer orderNum;
-	
+
 	// 数据库CODE
 	private String dbCode;
 
@@ -109,4 +112,16 @@ public class DataUnit {
 		this.gongweiCode = gongweiCode;
 	}
 
+	public DataUnit() {
+	}
+
+	public DataUnit(String id, String name, Integer type, String gongweiCode, String note, Integer orderNum) {
+		this.id = id;
+		this.name = name;
+		this.type = type;
+		this.gongweiCode = gongweiCode;
+		this.note = note;
+		this.orderNum = orderNum;
+
+	}
 }

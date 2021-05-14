@@ -1,17 +1,5 @@
 package com.paladin.qos.service.analysis;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.paladin.framework.core.exception.BusinessException;
 import com.paladin.framework.utils.uuid.UUIDUtil;
 import com.paladin.qos.analysis.DataByUnit;
@@ -24,24 +12,21 @@ import com.paladin.qos.model.data.DataEvent;
 import com.paladin.qos.model.data.DataProcessException;
 import com.paladin.qos.model.data.DataProcessedDay;
 import com.paladin.qos.model.data.DataUnit;
-import com.paladin.qos.service.analysis.data.AnalysisUnit;
-import com.paladin.qos.service.analysis.data.DataCountDay;
-import com.paladin.qos.service.analysis.data.DataCountMonth;
-import com.paladin.qos.service.analysis.data.DataCountUnit;
-import com.paladin.qos.service.analysis.data.DataCountYear;
-import com.paladin.qos.service.analysis.data.DataPointDay;
-import com.paladin.qos.service.analysis.data.DataPointMonth;
-import com.paladin.qos.service.analysis.data.DataPointUnit;
-import com.paladin.qos.service.analysis.data.DataPointWeekMonth;
-import com.paladin.qos.service.analysis.data.DataPointWeekYear;
-import com.paladin.qos.service.analysis.data.DataPointYear;
-import com.paladin.qos.service.analysis.data.DataResult;
-import com.paladin.qos.service.analysis.data.TestResult;
-import com.paladin.qos.service.analysis.data.ValidateEventResult;
-import com.paladin.qos.service.analysis.data.ValidateUnitResult;
+import com.paladin.qos.service.analysis.data.*;
 import com.paladin.qos.service.data.DataProcessExceptionService;
 import com.paladin.qos.service.data.DataProcessedDayService;
 import com.paladin.qos.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class AnalysisService {
@@ -654,6 +639,8 @@ public class AnalysisService {
 				units = DataConstantContainer.getHospitalList();
 			} else if (targetType == DataEvent.TARGET_TYPE_COMMUNITY) {
 				units = DataConstantContainer.getCommunityList();
+			} else if (targetType == DataEvent.TARGET_TYPE_STATION) {
+				units = DataConstantContainer.getStations();
 			}
 
 			if (units == null) {

@@ -1,10 +1,9 @@
 package com.paladin.qos.model.data;
 
-import java.util.Date;
+import com.paladin.qos.core.DataTaskConfiguration;
 
 import javax.persistence.Id;
-
-import com.paladin.qos.core.DataTaskConfiguration;
+import java.util.Date;
 
 public class DataEvent extends DataTaskConfiguration {
 
@@ -22,6 +21,7 @@ public class DataEvent extends DataTaskConfiguration {
 	public static final int TARGET_TYPE_ALL = 1;
 	public static final int TARGET_TYPE_HOSPITAL = 2;
 	public static final int TARGET_TYPE_COMMUNITY = 3;
+	public static final int TARGET_TYPE_STATION = 4;
 
 	//
 	@Id

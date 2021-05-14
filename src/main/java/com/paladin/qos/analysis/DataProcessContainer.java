@@ -14,7 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 @Component
@@ -61,6 +66,8 @@ public class DataProcessContainer implements SpringContainer {
                 units = DataConstantContainer.getHospitalList();
             } else if (targetType == DataEvent.TARGET_TYPE_COMMUNITY) {
                 units = DataConstantContainer.getCommunityList();
+            } else if (targetType == DataEvent.TARGET_TYPE_STATION) {
+                units = DataConstantContainer.getStations();
             }
 
             if (dataEvent.getDataSource().equals(DSConstant.DS_YIYUAN)) {
