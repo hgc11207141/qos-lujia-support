@@ -1,27 +1,27 @@
 package com.paladin.qos.analysis.impl.gongwei.pressureSugar;
 
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.thymeleaf.util.StringUtils;
-
 import com.paladin.data.dynamic.SqlSessionContainer;
 import com.paladin.qos.analysis.impl.gongwei.GongWeiDataProcessor;
 import com.paladin.qos.dynamic.DSConstant;
 import com.paladin.qos.dynamic.mapper.gongwei.PublicHealthManagementMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.thymeleaf.util.StringUtils;
+
+import java.util.Date;
 
 /**
- * 管理人群血糖控制率
+ * 管理人群血压控制率
  * 
  * @author wcw
  *
  */
-@Deprecated
-public class SugarControlRate extends GongWeiDataProcessor {
+@Component
+public class PressureVisitRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "22006";
+	public static final String EVENT_ID = "22004";
 
 	@Override
 	public String getEventId() {
@@ -35,7 +35,7 @@ public class SugarControlRate extends GongWeiDataProcessor {
 			return 0;
 		}
 		sqlSessionContainer.setCurrentDataSource(DSConstant.DS_GONGWEI);
-		return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getSugarNumber(startTime, endTime, gongWeiUnitId);
+		return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getPressureWaitFollowNumber(startTime, endTime, gongWeiUnitId);
 	}
 
 	@Override
@@ -45,7 +45,6 @@ public class SugarControlRate extends GongWeiDataProcessor {
 			return 0;
 		}
 		sqlSessionContainer.setCurrentDataSource(DSConstant.DS_GONGWEI);
-		return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getRecentSugarReachNumber(startTime, endTime,
-				gongWeiUnitId);
+		return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getPressureFollowNumber(startTime, endTime, gongWeiUnitId);
 	}
 }

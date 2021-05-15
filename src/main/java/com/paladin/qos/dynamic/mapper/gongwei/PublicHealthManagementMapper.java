@@ -1,9 +1,9 @@
 package com.paladin.qos.dynamic.mapper.gongwei;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.Date;
 import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
 
 public interface PublicHealthManagementMapper {
 
@@ -28,35 +28,34 @@ public interface PublicHealthManagementMapper {
     //有完整年度体检的老年人数
     Long getOldPeopleManageNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
-    //最近一次血压达标人数
-    Long getRecentPressureReachNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
-
     //高血压人数
     Long getPressureNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
     //高血压管理规范管理数
-   Long getPressureManageNumber(@Param("yearList")List<String> yearList, @Param("unitId") String unitId);
+   Long getPressureManageNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
     //高血压管理随访数
-    Long getPressureFollowNumber(@Param("yearList")List<String> yearList, @Param("unitId") String unitId);
+    Long getPressureFollowNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate,  @Param("unitId") String unitId);
+
+    //高血压管理待随访数
+    Long getPressureWaitFollowNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate,  @Param("unitId") String unitId);
+
+    //高血压体检数
+    Long getPressureCheckNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate,  @Param("unitId") String unitId);
 
     //糖尿病患病数
     Long getSugarNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
-    //最近一次血糖达标人数
-    Long getRecentSugarReachNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
+    //糖尿病管理规范管理数
+    Long getSugarManageNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
-    //高血糖管理规范管理数
-    Long getSugarManageNumber(@Param("yearList")List<String> yearList, @Param("unitId") String unitId);
+    //糖尿病管理随访数
+    Long getSugarFollowNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
-    //高血糖管理随访数
-    Long getSugarFollowNumber(@Param("yearList")List<String> yearList, @Param("unitId") String unitId);
+    //糖尿病管理待随访数
+    Long getSugarWaitFollowNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
-    //有效转诊的可疑症状的患者数
-    Long getReferralNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
-
-    //糖尿病患者和老年人可疑症状患者数
-    Long getPatientNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
+    Long getSugarCheckNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 
     //辖区内对65岁以上老年人规范进行中医体质辨识和中医保健指导人数
     Long getGuideNumber(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
