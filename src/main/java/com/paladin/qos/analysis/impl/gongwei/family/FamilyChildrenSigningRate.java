@@ -1,14 +1,14 @@
 package com.paladin.qos.analysis.impl.gongwei.family;
 
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.github.pagehelper.util.StringUtil;
 import com.paladin.data.dynamic.SqlSessionContainer;
 import com.paladin.qos.analysis.impl.gongwei.GongWeiDataProcessor;
 import com.paladin.qos.dynamic.DSConstant;
 import com.paladin.qos.dynamic.mapper.familydoctor.DataFamilyDoctorMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * 0-6周岁儿童签约率
@@ -16,7 +16,7 @@ import com.paladin.qos.dynamic.mapper.familydoctor.DataFamilyDoctorMapper;
  * @author MyKite
  * @version 2019年9月11日 下午4:29:21
  */
-@Deprecated
+@Component
 public class FamilyChildrenSigningRate extends GongWeiDataProcessor {
 
 	@Autowired

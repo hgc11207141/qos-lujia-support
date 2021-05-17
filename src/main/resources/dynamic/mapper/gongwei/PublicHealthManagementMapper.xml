@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.paladin.qos.dynamic.mapper.gongwei.PublicHealthManagementMapper">
+    <!--2021新建档案数-->
+    <select id="getNewArchives" resultType="java.lang.Long">
+        select count(1)
+        from phis_chss.v_fha_person_main
+        where stateid = '1'and status = '1'
+        and MANAGEDCENTERCODE = '320583103100'
+        AND to_char(createdtime,'yyyy') = '2021'
+        AND MANAGEDSTATIONCODE = #{unitId}
+        AND createdtime
+        <![CDATA[>= ]]> #{startDate}+0
+        AND createdtime
+        <![CDATA[< ]]> #{endDate}+0
+    </select>
     <!--活动档案数-->
     <select id="getActiveArchives" resultType="java.lang.Long">
         select count(1)
         from phis_chss.v_fha_person_main
-        where stateid=1 and status=1
-        AND managedcentercode = #{unitId}
+        where stateid = '1'and status = '1'
+        and MANAGEDCENTERCODE = '320583103100'
+        AND MANAGEDSTATIONCODE = #{unitId}
         AND createdtime
         <![CDATA[>= ]]> #{startDate}+0
         AND createdtime
@@ -16,8 +30,9 @@
     <select id="getPublicArchives" resultType="java.lang.Long">
         select count(1)
         from phis_chss.v_fha_person_main
-        where stateid=1 and verify=1
-        AND managedcentercode = #{unitId}
+        where stateid = '1'and status = '1' and verify='1'
+        and MANAGEDCENTERCODE = '320583103100'
+        AND MANAGEDSTATIONCODE = #{unitId}
         AND createdtime
         <![CDATA[>= ]]> #{startDate}+0
         AND createdtime
@@ -60,7 +75,7 @@
         group by code )) t
         join phis_chss.v_fha_person_main p
         on t.code=p.code
-        where managedcentercode=#{unitId} and p.stateid=1 and p.status=1
+        where  p.MANAGEDCENTERCODE = '320583103100' and MANAGEDSTATIONCODE=#{unitId} and p.stateid=1 and p.status=1
     </select>
 
     <!--老年人体检数-->
@@ -130,9 +145,16 @@
     <!--高血压人数-->
     <select id="getPressureNumber" resultType="java.lang.Long">
         select count(1)
-        from phis_chss.v_fhb_blood_main
-        where CREATEDTIME  <![CDATA[>= ]]> #{startDate} + 0
-        AND CREATEDTIME <![CDATA[< ]]> #{endDate} + 0
+        from phis_chss.v_fha_person_main
+        where linkb is not null
+        and code in (
+        select code from phis_chss.v_fhc_check_main where
+        examdate
+        <![CDATA[>= ]]> #{startDate}+0
+        AND examdate
+        <![CDATA[< ]]> #{endDate}+0
+        group by code
+        )
         AND MANAGEDCENTERCODE = '320583103100'
         AND MANAGEDSTATIONCODE = #{unitId}
     </select>
@@ -189,9 +211,18 @@
     <!--糖尿病患病数-->
     <select id="getSugarNumber" resultType="java.lang.Long">
         select count(1)
-        from phis_chss.v_fhd_diabetes_main
-        where CREATEDTIME  <![CDATA[>= ]]> #{startDate} + 0
-        AND CREATEDTIME <![CDATA[< ]]> #{endDate} + 0
+        from phis_chss.v_fha_person_main
+        where linkd is not null
+        and code in (
+        select c.code from phis_chss.v_fhc_check_main c
+        JOIN phis_chss.v_fhc_check_attach1 ca on c.chid=ca.linkid
+        where
+        ca.createdtime
+        <![CDATA[>= ]]> #{startDate}
+        AND ca.createdtime
+        <![CDATA[< ]]> #{endDate}
+        group by c.code
+        )
         AND MANAGEDCENTERCODE  = '320583103100'
         AND MANAGEDSTATIONCODE = #{unitId}
     </select>

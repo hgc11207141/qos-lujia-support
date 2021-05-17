@@ -3,17 +3,11 @@
 <mapper namespace="com.paladin.qos.dynamic.mapper.familydoctor.DataFamilyDoctorMapper">
     <!-- 健康管理服务包签约数(收费) -->
     <select id="signingIsMoneyNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main WHERE lastflag
-        ='1' AND familynew='1' and FAMILYNEW ='1'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_main ps
         LEFT JOIN phis_chss.v_fha_person_main pm
         ON ps.CODE=pm.CODE AND ps.stateid = '0' AND pm.stateid = '1'
-        WHERE ps.LASTFLAG = '1' AND ps.FAMILYNEW = '1' and ps.CREATEDTIME &gt;= #{startTime}+0  and ps.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        WHERE ps.LASTFLAG = '1' AND ps.FAMILYNEW = '1' and pm.MANAGEDCENTERCODE = '320583103100' and ps.CREATEDTIME &gt;= #{startTime}+0  and ps.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 健康管理服务包签约数(免费) -->
     <select id="signingNotMoneyNum" resultType="long">
@@ -33,10 +27,11 @@
     <select id="singingResidentNum" resultType="long">
         SELECT COUNT(1) FROM phis_chss.v_fha_person_main 
         where status='1'
+        AND stateid = '1'
+        and MANAGEDCENTERCODE = '320583103100'
         and CREATEDTIME &gt;= #{startTime}+0
         and CREATEDTIME &lt; #{endTime}+0
-        and MANAGEDCENTERCODE = #{unitId}
-        AND stateid = '1'
+        and MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 签约个性化服务数 -->
     <select id="singingServeNum" resultType="long">
@@ -72,6 +67,7 @@
         SELECT o.IDNUMBER idCard 
         FROM phis_chss.v_fha_person_sign_main_org o 
         where o.signcode ='1'
+        and o.MANAGEDCENTERCODE = '320583103100'
         and o.CREATEDTIME &gt;= #{startTime}+0
         and o.CREATEDTIME &lt; #{endTime}+0
         and o.MANAGEDCENTERCODE = #{unitId}
@@ -93,9 +89,10 @@
     <select id="singingAgencyOPDTotal" resultType="String">
         SELECT o.IDNUMBER idCard FROM phis_chss.v_fha_person_sign_main_org o
         where o.signcode ='1'
+        and o.MANAGEDCENTERCODE = '320583103100'
         and o.CREATEDTIME &gt;= #{startTime}+0
         and o.CREATEDTIME &lt; #{endTime}+0
-        and o.MANAGEDCENTERCODE = #{unitId}
+        and o.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <select id="registerOPDtotal" resultType="String">
         select r.idcardno idCard from phis_webhis.v_Opr_Register r 
@@ -119,23 +116,24 @@
     </select>
 
     <select id="hospitalOPDTotal" resultType="long">
-    	select count(1) from RegisterRecord 
-    	where REC_DT &gt;= #{startTime}+0 
+    	select count(1) from RegisterRecord
+    	where REC_DT &gt;= #{startTime}+0
     	and REC_DT &lt; #{endTime}+0
     	and cardno in
     	<foreach collection="idCard" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
     </select>
-    
+
     <!-- 签约居民家庭医生就诊总数 -->
     <select id="singingDoctorOPDtotal" resultType="String">
         select m.CENTERDOCTORNAME name from
         phis_chss.v_fha_person_sign_main_org o left join phis_chss.v_fha_person_sign_main m on o.CODE=m.CODE
         where m.CENTERDOCTORNAME is not null
+        and o.MANAGEDCENTERCODE = '320583103100'
         and m.CREATEDTIME &gt;= #{startTime}+0
         and m.CREATEDTIME &lt; #{endTime}+0
-        and m.CREATEDUNITCODE = #{unitId}
+        and o.MANAGEDSTATIONCODE = #{unitId}
     </select>
     
     <select id="docnameOPDnum" resultType="long">
@@ -151,378 +149,329 @@
     
     <!-- 慢病签约人员管理数 -->
     <select id="singingPersonManageNum" resultType="long">
-<!--        select count(1) from phis_chss.v_fha_person_sign_main_org o
-        left join phis_chss.v_fha_person_main m on o.CODE = m.CODE
-        where o.SIGNCODE = '1'
-        and m.LINKB is not null 
-        and o.CREATEDTIME &gt;= #{startTime}+0
-        and o.CREATEDTIME &lt; #{endTime}+0
-        and o.MANAGEDCENTERCODE = #{unitId}-->
-
-        SELECT COUNT(1)
-        FROM phis_chss.v_fha_person_sign_main_org  pg
-        LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pg.CODE=pm.CODE AND pg.stateid = '1' AND pm.stateid = '1'
-        WHERE pg.signcode='1' and pm.LINKB is not null   and pg.CREATEDTIME &gt;= #{startTime}+0  and pg.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        SELECT COUNT(pg.code)
+        FROM phis_chss.v_fha_person_sign_main_org pg,
+        phis_chss.v_fha_person_main          pm
+        where pg.CODE = pm.CODE
+        AND pg.stateid = '1'
+        AND pm.stateid = '1'
+        and pm.STATUS = '1'
+        and pg.signcode = '1'
+        and pm.MANAGEDCENTERCODE = '320583103100'
+        and (pm.LINKB is not null or pm.LINKD is not null or
+        pm.LINKHEART is not null or pm.LINKBRAIN is not null)
+        and pg.CREATEDTIME &gt;= #{startTime}+0  and pg.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 慢病签约人员随访数 ps:修改后的数据和之前的相差太多-->
     <select id="singingPersonFollowNum" resultType="long">
-<!--        select count(1) from phis_chss.v_fha_person_sign_main_org o
-        left join phis_chss.v_fha_person_main m on o.CODE = m.CODE
-        left join phis_chss.v_fha_person_sign_visit v on o.CODE = v.CODE
-        where o.SIGNCODE = '1' 
-        and m.LINKB is not null
-        and o.CREATEDTIME &gt;= #{startTime}+0
-        and o.CREATEDTIME &lt; #{endTime}+0
-        and o.MANAGEDCENTERCODE = #{unitId}-->
-
-        select count(1) from phis_chss.v_fha_person_sign_main_org pg
-        left join phis_chss.v_fha_person_main pm on pg.CODE = pm.CODE AND pg.stateid = '1' AND pm.stateid = '1'
-        left join phis_chss.v_fha_person_sign_visit pv on pg.CODE = pv.CODE AND pg.stateid = '1' AND pv.stateid = '1'
-        where pg.SIGNCODE = '1' and pm.LINKB is not null  and pg.CREATEDTIME &gt;= #{startTime}+0  and pg.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        select count(pv.CHID) as count
+        from phis_chss.v_fha_person_sign_main_org pg,
+        phis_chss.v_fha_person_sign_visit    pv,
+        phis_chss.v_fha_person_main          pm
+        where pg.CODE = pm.CODE
+        AND pg.stateid = '1'
+        AND pm.stateid = '1'
+        AND pg.CODE = pv.CODE
+        AND pg.stateid = '1'
+        AND pv.stateid = '0'
+        and pg.SIGNCODE = '1'
+        and pm.MANAGEDCENTERCODE = '320583103100'
+        and (pm.LINKB is not null or pm.LINKD is not null or
+        pm.LINKHEART is not null or pm.LINKBRAIN is not null)
+        and pg.CREATEDTIME &gt;= #{startTime}+0  and pg.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 上门服务人次数 -->
     <select id="doorServicePersonNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit
-        WHERE servercode='3'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit pv
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pv.CODE=pm.CODE AND pv.stateid = '1' AND pm.stateid = '1'
-        WHERE pv.servercode='3' and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pv.CODE=pm.CODE AND pv.stateid = '0' AND pm.stateid = '1' AND pv.STATUS='1' AND  pm.STATUS='1'
+        WHERE pv.servercode='3'    and pm.MANAGEDCENTERCODE = '320583103100'  and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 营养指导人次数 -->
     <select id="nutritionGuidePersonNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit
-        WHERE guide2 IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit pv
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pv.CODE=pm.CODE AND pv.stateid = '1' AND pm.stateid = '1'
-        WHERE pv.guide2 IS NOT NULL and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pv.CODE=pm.CODE AND pv.stateid = '0' AND pm.stateid = '1'
+        WHERE pv.guide2 IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 康复指导人次数 -->
     <select id="recoveryGuidePersonNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit
-        WHERE guide5 IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit pv
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pv.CODE=pm.CODE AND pv.stateid = '1' AND pm.stateid = '1'
-        WHERE pv.guide5 IS NOT NULL and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pv.CODE=pm.CODE AND pv.stateid = '0' AND pm.stateid = '1'
+        WHERE pv.guide5 IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 用药指导人次数 -->
     <select id="medicationGuidePersonNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit
-        WHERE guide1 IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit pv
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pv.CODE=pm.CODE AND pv.stateid = '1' AND pm.stateid = '1'
-        WHERE pv.guide1 IS NOT NULL and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pv.CODE=pm.CODE AND pv.stateid = '0' AND pm.stateid = '1'
+        WHERE pv.guide1 IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 慢病长处方服务数  ps:无ccffw-->
     <select id="prescriptionServicNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit
-        WHERE ccffw IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
-        FROM phis_chss.v_fha_person_sign_visit_temp pv
-        LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pv.CODE=pm.CODE AND pv.stateid = '1' AND pm.stateid = '1'
-        WHERE pv.ccffw IS NOT NULL and pv.CREATEDTIME &gt;= #{startTime}+0  and pv.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        FROM phis_chss.v_fha_person_main t  join phis_chss.v_fha_person_sign_visit_temp e
+        on t.code = e.code
+        where e.STATEID = '0'
+        and t.STATUS = '1'
+        AND t.MANAGEDCENTERCODE = '320583103100'
+        and t.stateid = '1'
+        and e.ccffw IS NOT NULL and e.CREATEDTIME &gt;= #{startTime}+0  and e.CREATEDTIME &lt; #{endTime}+0 and t.MANAGEDCENTERCODE = #{unitId}
     </select>
     <!-- 签约居民体检人数 -->
     <select id="singingInspectNum" resultType="long">
         SELECT COUNT(1) FROM phis_chss.v_fha_person_main 
         WHERE linkcsum IS NOT NULL
         AND stateid = '1'
+        AND MANAGEDCENTERCODE = '320583103100'
         AND CREATEDTIME &gt;= #{startTime}+0
         AND CREATEDTIME &lt; #{endTime}+0
         AND MANAGEDCENTERCODE = #{unitId}
     </select>
     <!-- 心脑血管高危人群筛查人数 -->
     <select id="cardiovascularSiftNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE znxgjbsc IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.znxgjbsc IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.znxgjbsc IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100'  and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 肿瘤高危人群筛查数 -->
     <select id="tumourSiftNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE zlsc IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.zlsc IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.zlsc IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100'  and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 骨质疏松高危人群筛查数 -->
     <select id="osteoporosisSiftNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE gzsc IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.gzsc IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.gzsc IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- COPD高危人群筛查数 -->
     <select id="copdSiftNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE mzfsc IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.mzfsc IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.mzfsc IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 儿童哮喘筛查数 -->
     <select id="childhoodSsthmaSiftNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE etxc IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.etxc IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.etxc IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 健康自理检测评估数 -->
     <select id="healthyselfcareSssessNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp t
-        WHERE t.JKZDPG IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.JKZDPG IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.JKZDPG IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- CDSS心脑血管风险评估数 -->
     <select id="cdssSssessNum" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_visit_temp
-        WHERE cdss IS NOT NULL
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.cdss IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.cdss IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!--个性化健康信息精准推送数 -->
     <select id="personalizedHealthPushNum" resultType="long">
-<!--        -
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
-
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_visit_temp  pt
         LEFT JOIN phis_chss.v_fha_person_main pm
-        ON pt.CODE=pm.CODE AND pt.stateid = '1' AND pm.stateid = '1'
-        WHERE pt.wx IS NOT NULL and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        ON pt.CODE=pm.CODE AND pt.stateid = '0' AND pm.stateid = '1' and pt.STATUS='1' and pm.status='1'
+        WHERE pt.wx IS NOT NULL and pm.MANAGEDCENTERCODE = '320583103100' and pt.CREATEDTIME &gt;= #{startTime}+0  and pt.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 家庭医生签约服务协议表总数 -->
     <select id="singingServiceTotal" resultType="long">
-<!--        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main
-        where CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}-->
         SELECT COUNT(1)
         FROM phis_chss.v_fha_person_sign_main  psm
         LEFT JOIN phis_chss.v_fha_person_main pm
         ON psm.CODE=pm.CODE AND psm.stateid = '1' AND pm.stateid = '1'
-        WHERE psm.CREATEDTIME &gt;= #{startTime}+0  and psm.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDCENTERCODE = #{unitId}
+        WHERE pm.MANAGEDCENTERCODE = '320583103100' and psm.CREATEDTIME &gt;= #{startTime}+0  and psm.CREATEDTIME &lt; #{endTime}+0 and pm.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 残疾人签约率 -->
     <select id="disabledSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%B%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%B%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 高血压患者签约率 -->
     <select id="hypertensionSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%5%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%5%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 糖尿病患者签约率 -->
     <select id="diabetesSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%6%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%6%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 孕产妇签约率 -->
     <select id="maternalSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%E%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%E%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 0-6周岁儿童签约率 -->
     <select id="childrenSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%F%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%F%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 65周岁及以上老年人签约率 -->
     <select id="agedSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%7%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%7%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 严重肺结核患者签约率 -->
     <select id="tuberculosisSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%8%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%8%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 重精神障碍患者签约率 -->
     <select id="mentalDisorderSigningRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%D%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%D%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
     <!-- 疾病筛查高危人员签约率 -->
     <select id="diseaseSiftSigningRate" resultType="long">
-        select count(1) from phis_chss.v_fha_person_sign_main m
-        left join phis_chss.v_fha_pre_scale_assess a on m.CODE=a.CODE
-        where a.RISKDESC is not null
+        SELECT count(1)
+        FROM phis_chss.v_fha_person_sign_main m
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON m.CODE=b.CODE
+        AND b.stateid = '1'
+        LEFT JOIN phis_chss.v_fha_pre_scale_assess a
+        ON m.CODE=a.CODE
+        WHERE m.STATUS = '1'
+        AND m.stateid = '0'
+        AND m.LASTFLAG = '1'
+        AND b.MANAGEDSTATIONCODE is NOT null  AND b.MANAGEDCENTERCODE = '320583103100'
+        AND a.RISKDESC is NOT null
         and m.CREATEDTIME &gt;= #{startTime}+0
         and m.CREATEDTIME &lt; #{endTime}+0
-        and m.CREATEDUNITCODE = #{unitId}
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
      <!-- 离休干部签约率 -->
     <select id="retirementCadreRate" resultType="long">
-        SELECT COUNT(1) FROM phis_chss.v_fha_person_sign_main 
-        WHERE signmemtype like '%G%'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and CREATEDUNITCODE = #{unitId}
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%G%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
 
-    <!--复筛低中高危数量(脑卒中)-->
-    <select id="SecCheckStrockNum" resultType="long">
-      select count(t.chid)
-      from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )   and t.stateid='1'
-      and     (t.riskdesc like '%脑卒中中危%' or t.riskdesc like '%脑卒中低危%' or t.riskdesc like '%脑卒中高危%')
-      and t.managedcentercode is not null
-       and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
+    <!-- 貧困签约率 -->
+    <select id="poorCadRate" resultType="long">
+        SELECT COUNT(1)   FROM phis_chss.v_fha_person_sign_main a
+        LEFT JOIN phis_chss.v_fha_person_main b
+        ON a.code = b.code
+        AND b.stateid = '1'
+        WHERE a.signmemtype LIKE '%9%'
+        AND a.STATUS = '1'
+        AND a.stateid = '0'
+        AND a.LASTFLAG = '1'
+        AND b.MANAGEDCENTERCODE = '320583103100'
+        and a.CREATEDTIME &gt;= #{startTime}+0
+        and a.CREATEDTIME &lt; #{endTime}+0
+        and b.MANAGEDSTATIONCODE = #{unitId}
     </select>
-
-    <!--复筛低中高危数量(心脏病)-->
-    <select id="SecCheckHeartNum" resultType="long">
-      select count(t.chid)
-      from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )   and t.stateid='1'
-      and     t.riskdesc like '%心脏病高危%'
-      and t.managedcentercode is not null
-       and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
-    </select>
-
-    <!--心超数量-->
-    <select id="heartBNum" resultType="long">
-       select  count(1)
-
-       from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )  and  t.stateid='1'  and t.heartultrasonickindcode ='2'
-
-       and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
-    </select>
-
-    <!--颈超数量-->
-    <select id="strockBNum" resultType="long">
-       select  count(1)
-       from  phis_chss.fha_pre_scale_assess  t  where    ( t.status='1'  or    t.status='3'  )  and  t.stateid='1'  and t.strokeultrasonickindcode='1'
-       and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
-    </select>
-
-    <!--心脏确认数量-->
-    <select id="heartConfirmBNum" resultType="long">
-       select  count(t.chid)
-        from  phis_chss.fha_pre_scale_assess  t  where  ( t.status='1'  or    t.status='3'  )  and  t.stateid='1' and  t.heartstate='1'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
-    </select>
-
-    <!--脑卒中确认数量-->
-    <select id="strockConfirmBNum" resultType="long">
-       select  count(t.chid)
-        from  phis_chss.fha_pre_scale_assess  t  where  ( t.status='1'  or    t.status='3'  )  and  t.stateid='1' and  t.strokestate='1'
-        and CREATEDTIME &gt;= #{startTime}+0
-        and CREATEDTIME &lt; #{endTime}+0
-        and managedcentercode = #{unitId}
-    </select>
-
 </mapper>

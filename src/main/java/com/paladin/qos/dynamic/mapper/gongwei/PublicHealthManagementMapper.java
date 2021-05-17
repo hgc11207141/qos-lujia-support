@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface PublicHealthManagementMapper {
 
+    //2021新建档案数
+    Long getNewArchives(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
+
     //活动档案数
     Long getActiveArchives(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("unitId") String unitId);
 

@@ -1,4 +1,4 @@
-package com.paladin.qos.analysis.impl.gongwei.pressureSugar;
+package com.paladin.qos.analysis.impl.gongwei.archives;
 
 import com.paladin.data.dynamic.SqlSessionContainer;
 import com.paladin.qos.analysis.impl.gongwei.GongWeiDataProcessor;
@@ -11,17 +11,17 @@ import org.thymeleaf.util.StringUtils;
 import java.util.Date;
 
 /**
- * <糖尿病患者体检数>
+ * <2021新建档案数>
  *
  * @author Huangguochen
- * @create 2021/5/15 15:13
+ * @create 2021/5/17 13:38
  */
 @Component
-public class SugarCheckNum extends GongWeiDataProcessor {
+public class NewArchivesNum extends GongWeiDataProcessor {
     @Autowired
     private SqlSessionContainer sqlSessionContainer;
 
-    public static final String EVENT_ID = "22023";
+    public static final String EVENT_ID = "22021";
 
     @Override
     public String getEventId() {
@@ -35,7 +35,7 @@ public class SugarCheckNum extends GongWeiDataProcessor {
             return 0;
         }
         sqlSessionContainer.setCurrentDataSource(DSConstant.DS_GONGWEI);
-        return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getSugarCheckNumber(startTime, endTime, gongWeiUnitId);
+        return sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getNewArchives(startTime, endTime, gongWeiUnitId);
     }
 
     @Override

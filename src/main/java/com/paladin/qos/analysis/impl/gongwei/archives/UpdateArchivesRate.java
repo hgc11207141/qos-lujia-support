@@ -4,7 +4,6 @@ import com.paladin.data.dynamic.SqlSessionContainer;
 import com.paladin.qos.analysis.impl.gongwei.GongWeiDataProcessor;
 import com.paladin.qos.core.migration.CommonIncrementDataMigrator;
 import com.paladin.qos.dynamic.DSConstant;
-import com.paladin.qos.dynamic.mapper.familydoctor.DataFamilyDoctorMapper;
 import com.paladin.qos.dynamic.mapper.gongwei.PublicHealthManagementMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,6 @@ public class UpdateArchivesRate extends GongWeiDataProcessor {
         }
         sqlSessionContainer.setCurrentDataSource(DSConstant.DS_GONGWEI);
         List<String> checkoutList= sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getCheckupRenewArchives(startTime, endTime, gongWeiUnitId);
-
-			logger.info("体检"+checkoutList.size()+"个");
 		sqlSessionContainer.setCurrentDataSource(DSConstant.DS_JCYL);
 		List<String>  treatList = sqlSessionContainer.getSqlSessionTemplate().getMapper(PublicHealthManagementMapper.class).getTreatRenewArchives(startTime,
 				endTime, unitId);
@@ -59,7 +56,6 @@ public class UpdateArchivesRate extends GongWeiDataProcessor {
 				.flatMap(Collection::stream)
 				.distinct()
 				.collect(Collectors.toList());
-		logger.info("结果"+result.size()+"个");
 		return result.size();
     }
 }

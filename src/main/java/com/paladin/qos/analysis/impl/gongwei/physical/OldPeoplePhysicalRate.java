@@ -21,7 +21,7 @@ public class OldPeoplePhysicalRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "";
+	public static final String EVENT_ID = "21034";
 
 	@Override
 	public String getEventId() {

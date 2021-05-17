@@ -11,7 +11,7 @@ import org.thymeleaf.util.StringUtils;
 import java.util.Date;
 
 /**
- * 管理人群血压控制率
+ * 高血压随访率
  * 
  * @author wcw
  *
@@ -21,7 +21,7 @@ public class PressureVisitRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "22004";
+	public static final String EVENT_ID = "22026";
 
 	@Override
 	public String getEventId() {

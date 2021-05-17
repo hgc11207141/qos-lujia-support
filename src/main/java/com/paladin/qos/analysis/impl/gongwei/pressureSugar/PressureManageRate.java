@@ -22,7 +22,7 @@ public class PressureManageRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "22005";
+	public static final String EVENT_ID = "22024";
 
 	@Override
 	public String getEventId() {

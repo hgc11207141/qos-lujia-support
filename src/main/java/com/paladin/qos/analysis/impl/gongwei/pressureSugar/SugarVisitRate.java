@@ -11,7 +11,7 @@ import org.thymeleaf.util.StringUtils;
 import java.util.Date;
 
 /**
- * 管理人群血糖控制率
+ * 糖尿病随访率
  * 
  * @author wcw
  *
@@ -21,7 +21,7 @@ public class SugarVisitRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "22006";
+	public static final String EVENT_ID = "22027";
 
 	@Override
 	public String getEventId() {

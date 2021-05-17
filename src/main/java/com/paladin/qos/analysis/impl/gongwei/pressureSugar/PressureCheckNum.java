@@ -22,7 +22,7 @@ public class PressureCheckNum extends GongWeiDataProcessor {
     @Autowired
     private SqlSessionContainer sqlSessionContainer;
 
-    public static final String EVENT_ID = "";
+    public static final String EVENT_ID = "22022";
 
     @Override
     public String getEventId() {

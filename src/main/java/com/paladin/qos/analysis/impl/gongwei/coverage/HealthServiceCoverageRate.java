@@ -21,7 +21,7 @@ public class HealthServiceCoverageRate extends GongWeiDataProcessor {
 	@Autowired
 	private SqlSessionContainer sqlSessionContainer;
 
-	public static final String EVENT_ID = "";
+	public static final String EVENT_ID = "21032";
 
 	@Override
 	public String getEventId() {
